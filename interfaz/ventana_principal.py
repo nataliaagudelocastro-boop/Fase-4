@@ -1,54 +1,97 @@
 
-# ==============================================
+# ==================================================
 # SOFTWARE FJ
-# VENTANA PRINCIPAL DE LA APLICACIÓN
-# ==============================================
+# VENTANA PRINCIPAL DE LA APLICACION
+# ==================================================
 
 import tkinter as tk
 from tkinter import ttk, messagebox
 
 from clases.cliente import Cliente
 
-# ==============================================
-# CLASE: VENTANA PRINCIPAL
-# ==============================================
+
+# ==================================================
+# CLASE PRINCIPAL
+# ==================================================
 
 class VentanaPrincipal:
 
     def __init__(self, ventana):
 
-        # Configuración de la ventana
+        # Configuracion de la ventana
         self.ventana = ventana
-        # Lista donde se almacenarán los clientes registrados
-        self.clientes = []
-        self.ventana.title("Software FJ - Gestión de Servicios y Reservas")
+        self.ventana.title("Software FJ - Gestion de Servicios y Clientes")
         self.ventana.geometry("1100x700")
-        self.ventana.minsize(950, 600)
-        self.ventana.configure(bg="#F0F4F8")
+        self.ventana.minsize(900, 600)
+        self.ventana.configure(bg="#F2F4F8")
 
-        # Colores principales
-        self.azul_oscuro = "#142D50"
-        self.azul = "#1769AA"
-        self.azul_claro = "#E8F1FA"
-        self.blanco = "#FFFFFF"
-        self.gris = "#F0F4F8"
-        self.texto = "#243447"
+        # Lista donde se almacenan los clientes
+        self.clientes = []
 
-        # Configuración de estilos
+        # Variable para controlar el registro inicial
+        self.registro_inicial = True
+
+        # Configurar estilos
         self.configurar_estilos()
 
-        # Construcción de la interfaz
-        self.crear_menu_lateral()
-        self.crear_encabezado()
-        self.crear_contenido()
-        self.crear_panel_eventos()
+        # Crear los contenedores principales
+        self.menu = tk.Frame(self.ventana, bg="#1E3A5F", width=220)
+        self.menu.pack(side="left", fill="y")
+        self.menu.pack_propagate(False)
 
-        # Mostrar la página inicial
-        self.mostrar_inicio()
+        self.contenedor_principal = tk.Frame(
+            self.ventana,
+            bg="#F2F4F8"
+        )
+        self.contenedor_principal.pack(
+            side="right",
+            fill="both",
+            expand=True
+        )
 
-    # ==========================================
-    # CONFIGURAR ESTILOS
-    # ==========================================
+        # Encabezado
+        self.encabezado = tk.Frame(
+            self.contenedor_principal,
+            bg="#FFFFFF",
+            height=70
+        )
+        self.encabezado.pack(fill="x")
+        self.encabezado.pack_propagate(False)
+
+        self.titulo_encabezado = tk.Label(
+            self.encabezado,
+            text="SOFTWARE FJ",
+            font=("Arial", 18, "bold"),
+            bg="#FFFFFF",
+            fg="#1E3A5F"
+        )
+        self.titulo_encabezado.pack(
+            side="left",
+            padx=25,
+            pady=18
+        )
+
+        # Area de contenido
+        self.contenido = tk.Frame(
+            self.contenedor_principal,
+            bg="#F2F4F8"
+        )
+        self.contenido.pack(
+            fill="both",
+            expand=True,
+            padx=20,
+            pady=20
+        )
+
+        # Crear el menu lateral
+        self.crear_menu()
+
+        # Mostrar primero el formulario de registro
+        self.mostrar_registro_inicial()
+
+    # ==================================================
+    # CONFIGURACION DE ESTILOS
+    # ==================================================
 
     def configurar_estilos(self):
 
@@ -56,381 +99,205 @@ class VentanaPrincipal:
         estilo.theme_use("clam")
 
         estilo.configure(
-            "Tarjeta.TFrame",
-            background=self.blanco
+            "Treeview",
+            background="#FFFFFF",
+            foreground="#333333",
+            rowheight=30,
+            fieldbackground="#FFFFFF",
+            font=("Arial", 10)
         )
 
         estilo.configure(
-            "Titulo.TLabel",
-            background=self.blanco,
-            foreground=self.texto,
-            font=("Times New Roman", 12, "bold")
+            "Treeview.Heading",
+            background="#1E3A5F",
+            foreground="white",
+            font=("Arial", 10, "bold")
         )
 
-    # ==========================================
-    # CREAR MENU LATERAL
-    # ==========================================
-
-    def crear_menu_lateral(self):
-
-        self.menu = tk.Frame(
-            self.ventana,
-            bg=self.azul_oscuro,
-            width=220
+        estilo.map(
+            "Treeview",
+            background=[("selected", "#D4AF37")],
+            foreground=[("selected", "#1E3A5F")]
         )
 
-        self.menu.pack(side="left", fill="y")
-        self.menu.pack_propagate(False)
+    # ==================================================
+    # MENU LATERAL
+    # ==================================================
 
-        # Nombre de la empresa
-        tk.Label(
-            self.menu,
-            text="FJ",
-            bg=self.azul_oscuro,
-            fg="white",
-            font=("Segoe UI", 38, "bold")
-        ).pack(pady=(30, 0))
+    def crear_menu(self):
 
-        tk.Label(
+        titulo = tk.Label(
             self.menu,
             text="SOFTWARE FJ",
-            bg=self.azul_oscuro,
-            fg="white",
-            font=("Times New Roman", 16, "bold")
-        ).pack(pady=5)
+            font=("Arial", 17, "bold"),
+            bg="#1E3A5F",
+            fg="white"
+        )
+        titulo.pack(pady=30)
 
-        tk.Label(
-            self.menu,
-            text="Gestión de servicios",
-            bg=self.azul_oscuro,
-            fg="#B9D7F2",
-            font=("Segoe UI", 10)
-        ).pack(pady=(0, 30))
-
-        # Opciones del menú
         opciones = [
-            ("⌂  Inicio", "Inicio"),
-            ("♙  Clientes", "Clientes"),
-            ("▤  Servicios", "Servicios"),
-            ("▦  Reservas", "Reservas"),
-            ("⌕  Consultas", "Consultas"),
-            ("▣  Reportes", "Reportes"),
-            ("⚠  Registro de errores", "Errores")
+            ("Inicio", self.mostrar_inicio),
+            ("Clientes", self.mostrar_clientes),
+            ("Servicios", self.mostrar_servicios),
+            ("Reservas", self.mostrar_reservas),
+            ("Consultas", self.mostrar_consultas),
+            ("Reportes", self.mostrar_reportes),
+            ("Registro de errores", self.mostrar_errores)
         ]
 
-        for texto, seccion in opciones:
+        for texto, comando in opciones:
 
             boton = tk.Button(
                 self.menu,
                 text=texto,
-                bg=self.azul_oscuro,
+                font=("Arial", 11),
+                bg="#1E3A5F",
                 fg="white",
-                activebackground=self.azul,
-                activeforeground="white",
-                font=("Segoe UI", 11),
+                activebackground="#D4AF37",
+                activeforeground="#1E3A5F",
                 relief="flat",
                 anchor="w",
-                padx=20,
+                padx=25,
                 pady=12,
                 cursor="hand2",
-                command=lambda s=seccion: self.mostrar_seccion(s)
+                command=comando
             )
 
-            boton.pack(fill="x", padx=10, pady=3)
+            boton.pack(fill="x", padx=8, pady=3)
 
-        # Botón para salir
-        tk.Button(
-            self.menu,
-            text="⏻  Salir",
-            bg=self.azul_oscuro,
-            fg="white",
-            activebackground="#A83232",
-            activeforeground="white",
-            font=("Times New Roman", 11),
-            relief="flat",
-            cursor="hand2",
-            command=self.ventana.destroy
-        ).pack(side="bottom", fill="x", padx=10, pady=20)
+    # ==================================================
+    # LIMPIAR AREA DE CONTENIDO
+    # ==================================================
 
-    # ==========================================
-    # CREAR ENCABEZADO
-    # ==========================================
+    def limpiar_contenido(self):
 
-    def crear_encabezado(self):
+        for elemento in self.contenido.winfo_children():
+            elemento.destroy()
 
-        self.encabezado = tk.Frame(
-            self.ventana,
-            bg=self.azul_oscuro,
-            height=115
-        )
+    # ==================================================
+    # FORMULARIO DE REGISTRO INICIAL
+    # ==================================================
 
-        self.encabezado.pack(fill="x")
-        self.encabezado.pack_propagate(False)
+    def mostrar_registro_inicial(self):
 
-        tk.Label(
-            self.encabezado,
+        self.limpiar_contenido()
+
+        # Ocultar el menu mientras se realiza el registro
+        self.menu.pack_forget()
+
+        titulo = tk.Label(
+            self.contenido,
             text="Bienvenido a Software FJ",
-            bg=self.azul_oscuro,
-            fg="white",
-            font=("Times New Roman", 23, "bold")
-        ).pack(anchor="w", padx=30, pady=(20, 5))
-
-        tk.Label(
-            self.encabezado,
-            text="Sistema Integral de Clientes, Servicios y Reservas",
-            bg=self.azul_oscuro,
-            fg="#D5E6F7",
-            font=("Segoe UI", 12)
-        ).pack(anchor="w", padx=30)
-
-    # ==========================================
-    # CREAR AREA DE CONTENIDO
-    # ==========================================
-
-    def crear_contenido(self):
-
-        self.contenido = tk.Frame(
-            self.ventana,
-            bg=self.gris
+            font=("Arial", 24, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
         )
+        titulo.pack(pady=(20, 5))
 
-        self.contenido.pack(
-            fill="both",
-            expand=True,
-            padx=20,
-            pady=15
+        subtitulo = tk.Label(
+            self.contenido,
+            text="Para comenzar, registra tus datos personales",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
         )
-
-    # ==========================================
-    # MOSTRAR PAGINA INICIAL
-    # ==========================================
-
-    def mostrar_inicio(self):
-
-        self.limpiar_contenido()
-
-        tk.Label(
-            self.contenido,
-            text="Panel principal",
-            bg=self.gris,
-            fg=self.texto,
-            font=("Times New Roman", 20, "bold")
-        ).pack(anchor="w", pady=(5, 15))
-
-        # Contenedor de tarjetas
-        contenedor_tarjetas = tk.Frame(
-            self.contenido,
-            bg=self.gris
-        )
-
-        contenedor_tarjetas.pack(fill="x")
-
-        tarjetas = [
-            ("Clientes registrados", "0", "#1769AA"),
-            ("Servicios disponibles", "0", "#16865B"),
-            ("Reservas activas", "0", "#7542B8")
-        ]
-
-        for titulo, cantidad, color in tarjetas:
-
-            tarjeta = tk.Frame(
-                contenedor_tarjetas,
-                bg=self.blanco,
-                highlightbackground="#D5DFEA",
-                highlightthickness=1
-            )
-
-            tarjeta.pack(
-                side="left",
-                fill="both",
-                expand=True,
-                padx=6,
-                pady=5
-            )
-
-            tk.Label(
-                tarjeta,
-                text=titulo,
-                bg=self.blanco,
-                fg=self.texto,
-                font=("Times New Roman", 11, "bold")
-            ).pack(pady=(20, 5))
-
-            tk.Label(
-                tarjeta,
-                text=cantidad,
-                bg=self.blanco,
-                fg=color,
-                font=("Times New Roman", 28, "bold")
-            ).pack(pady=(0, 20))
-
-        # Mensaje de bienvenida
-        bienvenida = tk.Frame(
-            self.contenido,
-            bg=self.blanco,
-            highlightbackground="#D5DFEA",
-            highlightthickness=1
-        )
-
-        bienvenida.pack(fill="both", expand=True, pady=20)
-
-        tk.Label(
-            bienvenida,
-            text="Sistema de gestión Software FJ",
-            bg=self.blanco,
-            fg=self.azul_oscuro,
-            font=("Times New Roman", 18, "bold")
-        ).pack(pady=(50, 15))
-
-        tk.Label(
-            bienvenida,
-            text="Administra tus clientes, servicios y reservas\n"
-                 "desde una sola aplicación.",
-            bg=self.blanco,
-            fg=self.texto,
-            font=("Times New Roman", 12),
-            justify="center"
-        ).pack(pady=10)
-
-        tk.Label(
-            bienvenida,
-            text="Selecciona una opción del menú lateral para comenzar.",
-            bg=self.blanco,
-            fg=self.azul,
-            font=("Times New Roman", 11, "bold")
-        ).pack(pady=15)
-
-
-
-
-
-    # ==========================================
-    # MODULO DE CLIENTES
-    # ==========================================
-
-    def mostrar_clientes(self):
-
-        self.limpiar_contenido()
-
-        # Titulo del modulo
-        tk.Label(
-            self.contenido,
-            text="Gestión de clientes",
-            bg=self.gris,
-            fg=self.azul_oscuro,
-            font=("Times New Roman", 20, "bold")
-        ).pack(anchor="w", pady=(5, 15))
+        subtitulo.pack(pady=5)
 
         # Formulario de registro
-        formulario = tk.LabelFrame(
+        formulario = tk.Frame(
             self.contenido,
-            text="Registrar nuevo cliente",
-            bg=self.blanco,
-            fg=self.azul_oscuro,
-            font=("Times New Roman", 11, "bold"),
-            padx=15,
+            bg="white",
+            padx=40,
+            pady=20
+        )
+        formulario.pack(
+            fill="x",
+            padx=80,
             pady=15
         )
 
-        formulario.pack(fill="x", pady=10)
-
         # Variables para almacenar los datos
-        self.nombre_var = tk.StringVar()
-        self.documento_var = tk.StringVar()
-        self.telefono_var = tk.StringVar()
-        self.correo_var = tk.StringVar()
+        self.nombre_inicial = tk.StringVar()
+        self.documento_inicial = tk.StringVar()
+        self.telefono_inicial = tk.StringVar()
+        self.correo_inicial = tk.StringVar()
 
-        # Campo nombre
-        tk.Label(formulario, text="Nombre completo:",
-                 bg=self.blanco).grid(row=0, column=0,
-                                      sticky="w", padx=5, pady=5)
+        # Campos del formulario
+        campos = [
+            ("Nombre completo:", self.nombre_inicial),
+            ("Documento:", self.documento_inicial),
+            ("Telefono:", self.telefono_inicial),
+            ("Correo electronico:", self.correo_inicial)
+        ]
 
-        ttk.Entry(formulario, textvariable=self.nombre_var,
-                  width=35).grid(row=0, column=1, padx=5, pady=5)
+        for texto, variable in campos:
 
-        # Campo documento
-        tk.Label(formulario, text="Documento:",
-                 bg=self.blanco).grid(row=0, column=2,
-                                      sticky="w", padx=5, pady=5)
+            etiqueta = tk.Label(
+                formulario,
+                text=texto,
+                font=("Arial", 11, "bold"),
+                bg="white",
+                fg="#1E3A5F"
+            )
+            etiqueta.pack(anchor="w", pady=(8, 3))
 
-        ttk.Entry(formulario, textvariable=self.documento_var,
-                  width=25).grid(row=0, column=3, padx=5, pady=5)
+            entrada = tk.Entry(
+                formulario,
+                textvariable=variable,
+                font=("Arial", 11),
+                width=40,
+                relief="solid",
+                bd=1
+            )
+            entrada.pack(
+                fill="x",
+                ipady=6,
+                pady=3
+            )
 
-        # Campo telefono
-        tk.Label(formulario, text="Teléfono:",
-                 bg=self.blanco).grid(row=1, column=0,
-                                      sticky="w", padx=5, pady=5)
-
-        ttk.Entry(formulario, textvariable=self.telefono_var,
-                  width=35).grid(row=1, column=1, padx=5, pady=5)
-
-        # Campo correo
-        tk.Label(formulario, text="Correo electrónico:",
-                 bg=self.blanco).grid(row=1, column=2,
-                                      sticky="w", padx=5, pady=5)
-
-        ttk.Entry(formulario, textvariable=self.correo_var,
-                  width=25).grid(row=1, column=3, padx=5, pady=5)
-
-        # Boton guardar
-        ttk.Button(
+        # Boton para ingresar al menu principal
+        boton_registrar = tk.Button(
             formulario,
-            text="Guardar cliente",
+            text="REGISTRAR Y CONTINUAR",
+            font=("Arial", 12, "bold"),
+            bg="#1E3A5F",
+            fg="white",
+            activebackground="#D4AF37",
+            activeforeground="#1E3A5F",
+            relief="flat",
+            cursor="hand2",
             command=self.registrar_cliente
-        ).grid(row=2, column=1, pady=15)
-
-        # Tabla de clientes
-        tk.Label(
-            self.contenido,
-            text="Clientes registrados",
-            bg=self.gris,
-            fg=self.azul_oscuro,
-            font=("Times New Roman", 14, "bold")
-        ).pack(anchor="w", pady=(15, 8))
-
-        self.tabla_clientes = ttk.Treeview(
-            self.contenido,
-            columns=("nombre", "documento", "telefono", "correo"),
-            show="headings",
-            height=8
         )
 
-        self.tabla_clientes.heading("nombre", text="Nombre")
-        self.tabla_clientes.heading("documento", text="Documento")
-        self.tabla_clientes.heading("telefono", text="Teléfono")
-        self.tabla_clientes.heading("correo", text="Correo electrónico")
+        boton_registrar.pack(
+            fill="x",
+            pady=(20, 5),
+            ipady=10
+        )
 
-        self.tabla_clientes.column("nombre", width=180)
-        self.tabla_clientes.column("documento", width=120)
-        self.tabla_clientes.column("telefono", width=120)
-        self.tabla_clientes.column("correo", width=220)
-
-        self.tabla_clientes.pack(fill="both", expand=True)
-
-        # Mostrar clientes que ya estén registrados
-        self.actualizar_tabla_clientes()
-
-    # ==========================================
+    # ==================================================
     # REGISTRAR CLIENTE
-    # ==========================================
+    # ==================================================
 
     def registrar_cliente(self):
 
         try:
 
-            # Obtener los datos del formulario
-            nombre = self.nombre_var.get()
-            documento = self.documento_var.get()
-            telefono = self.telefono_var.get()
-            correo = self.correo_var.get()
+            if self.registro_inicial:
 
-            # Comprobar si el documento ya existe
-            for cliente in self.clientes:
+                nombre = self.nombre_inicial.get()
+                documento = self.documento_inicial.get()
+                telefono = self.telefono_inicial.get()
+                correo = self.correo_inicial.get()
 
-                if cliente.obtener_datos()["documento"] == documento.strip():
-                    raise ValueError("Ya existe un cliente con ese documento.")
+            else:
 
-            # Crear el objeto cliente
+                nombre = self.nombre_cliente.get()
+                documento = self.documento_cliente.get()
+                telefono = self.telefono_cliente.get()
+                correo = self.correo_cliente.get()
+
+            # Crear un objeto de la clase Cliente
             nuevo_cliente = Cliente(
                 nombre,
                 documento,
@@ -438,27 +305,48 @@ class VentanaPrincipal:
                 correo
             )
 
-            # Guardar el objeto en la lista
+            # Evitar documentos repetidos
+            for cliente in self.clientes:
+
+                if cliente.obtener_datos()["documento"] == documento.strip():
+
+                    raise ValueError(
+                        "Ya existe un cliente registrado con ese documento."
+                    )
+
+            # Agregar el cliente a la lista
             self.clientes.append(nuevo_cliente)
 
-            # Actualizar la tabla
-            self.actualizar_tabla_clientes()
+            if self.registro_inicial:
 
-            # Limpiar formulario
-            self.nombre_var.set("")
-            self.documento_var.set("")
-            self.telefono_var.set("")
-            self.correo_var.set("")
+                self.registro_inicial = False
 
-            messagebox.showinfo(
-                "Registro exitoso",
-                "El cliente se registró correctamente."
-            )
+                messagebox.showinfo(
+                    "Registro exitoso",
+                    "Tus datos fueron registrados correctamente."
+                )
+
+                self.mostrar_menu_principal()
+
+            else:
+
+                self.actualizar_tabla_clientes()
+
+                # Limpiar los campos
+                self.nombre_cliente.set("")
+                self.documento_cliente.set("")
+                self.telefono_cliente.set("")
+                self.correo_cliente.set("")
+
+                messagebox.showinfo(
+                    "Registro exitoso",
+                    "El cliente fue registrado correctamente."
+                )
 
         except ValueError as error:
 
             messagebox.showerror(
-                "Error de registro",
+                "Error de validacion",
                 str(error)
             )
 
@@ -466,18 +354,207 @@ class VentanaPrincipal:
 
             messagebox.showerror(
                 "Error inesperado",
-                f"Ocurrió un problema: {error}"
+                f"Ocurrio un error: {error}"
             )
 
-    # ==========================================
+    # ==================================================
+    # MOSTRAR MENU PRINCIPAL
+    # ==================================================
+
+    def mostrar_menu_principal(self):
+
+        self.menu.pack(
+            side="left",
+            fill="y",
+            before=self.contenedor_principal
+        )
+
+        self.mostrar_inicio()
+
+    # ==================================================
+    # MODULO INICIO
+    # ==================================================
+
+    def mostrar_inicio(self):
+
+        self.limpiar_contenido()
+
+        titulo = tk.Label(
+            self.contenido,
+            text="Panel principal",
+            font=("Arial", 23, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        )
+        titulo.pack(anchor="w", pady=15)
+
+        bienvenida = tk.Label(
+            self.contenido,
+            text="Bienvenido al sistema de gestion de servicios.",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
+        )
+        bienvenida.pack(anchor="w", pady=5)
+
+        # Panel de informacion
+        panel = tk.Frame(
+            self.contenido,
+            bg="white",
+            padx=25,
+            pady=25
+        )
+        panel.pack(fill="x", pady=25)
+
+        total_clientes = len(self.clientes)
+
+        tk.Label(
+            panel,
+            text="CLIENTES REGISTRADOS",
+            font=("Arial", 12, "bold"),
+            bg="white",
+            fg="#1E3A5F"
+        ).pack(anchor="w")
+
+        tk.Label(
+            panel,
+            text=str(total_clientes),
+            font=("Arial", 30, "bold"),
+            bg="white",
+            fg="#D4AF37"
+        ).pack(anchor="w", pady=10)
+
+        tk.Label(
+            self.contenido,
+            text="Utiliza el menu lateral para acceder a los modulos.",
+            font=("Arial", 11),
+            bg="#F2F4F8",
+            fg="#555555"
+        ).pack(anchor="w", pady=10)
+
+    # ==================================================
+    # MODULO CLIENTES
+    # ==================================================
+
+    def mostrar_clientes(self):
+
+        self.limpiar_contenido()
+
+        titulo = tk.Label(
+            self.contenido,
+            text="Gestion de clientes",
+            font=("Arial", 22, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        )
+        titulo.pack(anchor="w", pady=10)
+
+        # Formulario para agregar clientes
+        formulario = tk.Frame(
+            self.contenido,
+            bg="white",
+            padx=20,
+            pady=15
+        )
+        formulario.pack(fill="x", pady=10)
+
+        self.nombre_cliente = tk.StringVar()
+        self.documento_cliente = tk.StringVar()
+        self.telefono_cliente = tk.StringVar()
+        self.correo_cliente = tk.StringVar()
+
+        campos = [
+            ("Nombre:", self.nombre_cliente),
+            ("Documento:", self.documento_cliente),
+            ("Telefono:", self.telefono_cliente),
+            ("Correo:", self.correo_cliente)
+        ]
+
+        for texto, variable in campos:
+
+            fila = tk.Frame(formulario, bg="white")
+            fila.pack(fill="x", pady=5)
+
+            tk.Label(
+                fila,
+                text=texto,
+                font=("Arial", 10, "bold"),
+                bg="white",
+                fg="#1E3A5F",
+                width=15,
+                anchor="w"
+            ).pack(side="left")
+
+            tk.Entry(
+                fila,
+                textvariable=variable,
+                font=("Arial", 10),
+                width=40
+            ).pack(side="left", ipady=4)
+
+        boton_registrar = tk.Button(
+            formulario,
+            text="Registrar cliente",
+            font=("Arial", 10, "bold"),
+            bg="#1E3A5F",
+            fg="white",
+            activebackground="#D4AF37",
+            activeforeground="#1E3A5F",
+            relief="flat",
+            cursor="hand2",
+            command=self.registrar_cliente
+        )
+        boton_registrar.pack(anchor="e", pady=12, ipadx=10, ipady=5)
+
+        # Tabla de clientes
+        tabla_frame = tk.Frame(
+            self.contenido,
+            bg="white",
+            padx=10,
+            pady=10
+        )
+        tabla_frame.pack(fill="both", expand=True, pady=10)
+
+        columnas = (
+            "nombre",
+            "documento",
+            "telefono",
+            "correo"
+        )
+
+        self.tabla_clientes = ttk.Treeview(
+            tabla_frame,
+            columns=columnas,
+            show="headings"
+        )
+
+        self.tabla_clientes.heading("nombre", text="Nombre")
+        self.tabla_clientes.heading("documento", text="Documento")
+        self.tabla_clientes.heading("telefono", text="Telefono")
+        self.tabla_clientes.heading("correo", text="Correo electronico")
+
+        self.tabla_clientes.column("nombre", width=180)
+        self.tabla_clientes.column("documento", width=120)
+        self.tabla_clientes.column("telefono", width=120)
+        self.tabla_clientes.column("correo", width=220)
+
+        self.tabla_clientes.pack(
+            fill="both",
+            expand=True
+        )
+
+        self.actualizar_tabla_clientes()
+
+    # ==================================================
     # ACTUALIZAR TABLA DE CLIENTES
-    # ==========================================
+    # ==================================================
 
     def actualizar_tabla_clientes(self):
 
-        # Eliminar filas anteriores
-        for fila in self.tabla_clientes.get_children():
-            self.tabla_clientes.delete(fila)
+        # Eliminar los datos anteriores de la tabla
+        for elemento in self.tabla_clientes.get_children():
+
+            self.tabla_clientes.delete(elemento)
 
         # Agregar los clientes registrados
         for cliente in self.clientes:
@@ -495,91 +572,162 @@ class VentanaPrincipal:
                 )
             )
 
-    # ==========================================
-    # LIMPIAR CONTENIDO
-    # ==========================================
+    # ==================================================
+    # MODULO SERVICIOS
+    # ==================================================
 
-    def limpiar_contenido(self):
-
-        for elemento in self.contenido.winfo_children():
-            elemento.destroy()
-
-    # ==========================================
-    # NAVEGACION ENTRE SECCIONES
-    # ==========================================
-
-    def mostrar_seccion(self, seccion):
-
-        if seccion == "Clientes":
-            self.mostrar_clientes()
-            return
+    def mostrar_servicios(self):
 
         self.limpiar_contenido()
 
         tk.Label(
             self.contenido,
-            text=seccion,
-            bg=self.gris,
-            fg=self.azul_oscuro,
-            font=("Times New Roman", 22, "bold")
-        ).pack(anchor="w", pady=20)
+            text="Gestion de servicios",
+            font=("Arial", 22, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        ).pack(anchor="w", pady=15)
 
         tk.Label(
             self.contenido,
-            text=f"El módulo de {seccion} se desarrollará en las siguientes fases.",
-            bg=self.gris,
-            fg=self.texto,
-            font=("Times New Roman", 12)
+            text="En este modulo se administraran los servicios disponibles.",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
         ).pack(anchor="w", pady=10)
 
-    # ==========================================
-    # PANEL DE EVENTOS
-    # ==========================================
+        tk.Label(
+            self.contenido,
+            text="Modulo en desarrollo.",
+            font=("Arial", 11, "italic"),
+            bg="#F2F4F8",
+            fg="#888888"
+        ).pack(anchor="w", pady=10)
 
-    def crear_panel_eventos(self):
+    # ==================================================
+    # MODULO RESERVAS
+    # ==================================================
 
-        self.panel_eventos = tk.Frame(
-            self.ventana,
-            bg=self.blanco,
-            height=85
-        )
+    def mostrar_reservas(self):
 
-        self.panel_eventos.pack(
-            side="bottom",
-            fill="x",
-            padx=20,
-            pady=(0, 10)
-        )
-
-        self.panel_eventos.pack_propagate(False)
+        self.limpiar_contenido()
 
         tk.Label(
-            self.panel_eventos,
-            text="Eventos del sistema",
-            bg=self.blanco,
-            fg=self.azul_oscuro,
-            font=("Times New Roman", 10, "bold")
-        ).pack(anchor="w", padx=10, pady=(8, 3))
+            self.contenido,
+            text="Gestion de reservas",
+            font=("Arial", 22, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        ).pack(anchor="w", pady=15)
 
-        self.texto_eventos = tk.Label(
-            self.panel_eventos,
-            text="Software FJ iniciado correctamente.",
-            bg=self.blanco,
-            fg="#16865B",
-            font=("Segoe UI", 9)
-        )
+        tk.Label(
+            self.contenido,
+            text="En este modulo se administraran las reservas.",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
+        ).pack(anchor="w", pady=10)
 
-        self.texto_eventos.pack(anchor="w", padx=10)
+        tk.Label(
+            self.contenido,
+            text="Modulo en desarrollo.",
+            font=("Arial", 11, "italic"),
+            bg="#F2F4F8",
+            fg="#888888"
+        ).pack(anchor="w", pady=10)
 
+    # ==================================================
+    # MODULO CONSULTAS
+    # ==================================================
 
-# ==============================================
-# INICIAR APLICACION
-# ==============================================
+    def mostrar_consultas(self):
 
-if __name__ == "__main__":
+        self.limpiar_contenido()
 
-    ventana = tk.Tk()
+        tk.Label(
+            self.contenido,
+            text="Consultas",
+            font=("Arial", 22, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        ).pack(anchor="w", pady=15)
 
-    aplicacion = VentanaPrincipal(ventana)
+        tk.Label(
+            self.contenido,
+            text="En este modulo se realizaran consultas de clientes y reservas.",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
+        ).pack(anchor="w", pady=10)
 
-    ventana.mainloop()
+        tk.Label(
+            self.contenido,
+            text="Modulo en desarrollo.",
+            font=("Arial", 11, "italic"),
+            bg="#F2F4F8",
+            fg="#888888"
+        ).pack(anchor="w", pady=10)
+
+    # ==================================================
+    # MODULO REPORTES
+    # ==================================================
+
+    def mostrar_reportes(self):
+
+        self.limpiar_contenido()
+
+        tk.Label(
+            self.contenido,
+            text="Reportes",
+            font=("Arial", 22, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        ).pack(anchor="w", pady=15)
+
+        tk.Label(
+            self.contenido,
+            text="En este modulo se generaran los reportes del sistema.",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
+        ).pack(anchor="w", pady=10)
+
+        tk.Label(
+            self.contenido,
+            text="Modulo en desarrollo.",
+            font=("Arial", 11, "italic"),
+            bg="#F2F4F8",
+            fg="#888888"
+        ).pack(anchor="w", pady=10)
+
+    # ==================================================
+    # REGISTRO DE ERRORES
+    # ==================================================
+
+    def mostrar_errores(self):
+
+        self.limpiar_contenido()
+
+        tk.Label(
+            self.contenido,
+            text="Registro de errores",
+            font=("Arial", 22, "bold"),
+            bg="#F2F4F8",
+            fg="#1E3A5F"
+        ).pack(anchor="w", pady=15)
+
+        tk.Label(
+            self.contenido,
+            text="En este modulo se visualizaran los errores del sistema.",
+            font=("Arial", 12),
+            bg="#F2F4F8",
+            fg="#555555"
+        ).pack(anchor="w", pady=10)
+
+        tk.Label(
+            self.contenido,
+            text="Modulo en desarrollo.",
+            font=("Arial", 11),
+            bg="#F2F4F8",
+            fg="#888888"
+        ).pack(anchor="w", pady=10)

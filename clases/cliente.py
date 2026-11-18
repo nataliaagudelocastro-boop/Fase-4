@@ -12,7 +12,7 @@ class Cliente:
     # Constructor de la clase
     def __init__(self, nombre, documento, telefono, correo):
 
-        # Validar que los campos no estén vacíos
+        # Validar que los campos no esten vacios
         if not nombre.strip():
             raise ValueError("El nombre es obligatorio.")
 
@@ -20,31 +20,31 @@ class Cliente:
             raise ValueError("El documento es obligatorio.")
 
         if not telefono.strip():
-            raise ValueError("El teléfono es obligatorio.")
+            raise ValueError("El telefono es obligatorio.")
 
         if not correo.strip():
-            raise ValueError("El correo electrónico es obligatorio.")
+            raise ValueError("El correo electronico es obligatorio.")
 
-        # Validar que documento y teléfono contengan números
+        # Validar que documento y telefono contengan numeros
         if not documento.isdigit():
-            raise ValueError("El documento debe contener solo números.")
+            raise ValueError("El documento debe contener solo numeros.")
 
         if not telefono.isdigit():
-            raise ValueError("El teléfono debe contener solo números.")
+            raise ValueError("El telefono debe contener solo numeros.")
 
-        # Validar formato básico del correo
+        # Validar el formato del correo electronico
         patron_correo = r"^[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}$"
 
         if not re.match(patron_correo, correo):
-            raise ValueError("El correo electrónico no es válido.")
+            raise ValueError("El correo electronico no es valido.")
 
-        # Atributos encapsulados
+        # Atributos privados (encapsulamiento)
         self.__nombre = nombre.strip()
         self.__documento = documento.strip()
         self.__telefono = telefono.strip()
         self.__correo = correo.strip()
 
-    # Método para obtener los datos del cliente
+    # Metodo para obtener los datos del cliente
     def obtener_datos(self):
 
         return {
@@ -54,12 +54,12 @@ class Cliente:
             "correo": self.__correo
         }
 
-    # Método para mostrar la información
+    # Metodo para mostrar la informacion del cliente
     def __str__(self):
 
         return (
             f"Nombre: {self.__nombre} | "
             f"Documento: {self.__documento} | "
-            f"Teléfono: {self.__telefono} | "
+            f"Telefono: {self.__telefono} | "
             f"Correo: {self.__correo}"
         )
